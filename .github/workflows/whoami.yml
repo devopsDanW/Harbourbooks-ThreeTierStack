@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - 'test/oidc'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  whoami:
+    environment: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: authenticate to AWS with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWSROLE_HARBOURBOOKS_GITHUBACTIONS }}
+          aws-region: ap-southeast-2
+
+      - name: show current aws get-caller-identity
+        run: aws sts get-caller-identity
+
+
+
+
+
+
+
+
+
