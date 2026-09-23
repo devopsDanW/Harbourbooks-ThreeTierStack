@@ -1,0 +1,17 @@
+name: CI
+on:
+  push:
+    branches:
+      - feat/oidc-cicd
+
+jobs:
+  call-deploy:
+    uses:
+      ./.github/workflows/deploy.yml
+    with:
+      environment: dev
+    secrets:
+      aws-role-arn: ${{ secrets.AWSROLE_HARBOURBOOKS_GITHUBACTIONS }}
+      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+
+
