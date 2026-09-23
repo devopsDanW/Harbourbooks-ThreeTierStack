@@ -1,0 +1,70 @@
+name: reusable-Build-and-Push-ECR
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+    secrets:
+      aws-role-arn:
+        required: true
+      EC2_INSTANCE_ID:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-southeast-2
+  ECR_REPOSITORY: harbour-books
+
+jobs:
+  build-and-deploy:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: checkout source code
+        uses: actions/checkout@v4
+      - name: authenticate to AWS using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws-role-arn }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login in AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Write .env
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          echo "DOCKER_IMAGE_NAME=${ECR_REGISTRY}/${ECR_REPOSITORY}" > .env
+          echo "TAG=${GITHUB_SHA}" >> .env
+      - name: Lint Dockerfile
+        run: make lint
+      - name: Build Image
+        run: make build TAG=$GITHUB_SHA
+      - name: Push Image to ECR
+        run: make push TAG=$GITHUB_SHA
+      - name: Deploy via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters '{"commands":[
+            \"aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
+            \"cd /home/ssm-user/app",
+            \"export TAG='"$GITHUB_SHA"'"
+            \"docker compose pull",
+            \"docker compose up -d"
+            \]}'
+
+
+
+
+
+
+
+
+
