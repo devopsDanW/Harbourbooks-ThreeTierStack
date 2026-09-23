@@ -4,6 +4,10 @@ on:
     branches:
       - feat/oidc-cicd
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   call-deploy:
     uses:
