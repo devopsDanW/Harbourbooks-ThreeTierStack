@@ -1,5 +1,5 @@
 SHELL := /bin/bash
--include: .env
+-include .env
 DOCKER_IMAGE_NAME ?= harbour-books
 TAG ?= latest
 export DOCKER_IMAGE_NAME
@@ -15,7 +15,7 @@ help:
 	@echo "make down - Stop Docker container"
 
 lint:
-	docker run -rm -i hadolint/hadolint < app/Dockerfile || true
+	docker run --rm -i hadolint/hadolint < app/Dockerfile || true
 build: lint
 	docker build -t $(DOCKER_IMAGE_NAME):$(TAG) app
 run:
