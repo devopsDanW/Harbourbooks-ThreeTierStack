@@ -1,1 +1,4 @@
 learn.md
+.env
+infra/iam-policies
+.DS_Store
