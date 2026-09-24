@@ -61,3 +61,4 @@ DB_SECRET_ARN points to a secret in Secret Manager, which contains username and 
 
 *tag SNS topic, alarms, updated SG, secret*
 --tags Key=Project,Value=harbour-books Key=Owner,Value=Dan Key=Environment,Value=dev
+
