@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   call-deploy-dev:
-    if: github.event.name == 'push' && github.refs == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses:
       ./.github/workflows/deploy.yml
     with:
@@ -19,13 +19,13 @@ jobs:
       EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
 
   call-deploy-qa:
-    if: github.event.name == 'push' && github.refs == 'refs/heads/qa'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/qa'
     uses:
       ./.github/workflows/deploy.yml
     with:
       environment: qa
     secrets:
-      aws-role-arn: ${{ secrets.AWSROLE_HARBOURBOOKS_GITHUBACTIONS }}
+      aws-role-arn: ${{ secrets.AWSROLE_HARBOURBOOKS_GITHUBACTIONS_QA }}
       EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
 
 
