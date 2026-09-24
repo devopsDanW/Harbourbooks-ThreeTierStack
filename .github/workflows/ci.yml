@@ -1,19 +1,29 @@
 name: CI
 on:
   push:
-    branches:
-      - main
+    branches: [main, qa]
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  call-deploy:
+  call-deploy-dev:
+    if: github.event.name == 'push' && github.refs == 'refs/heads/main'
     uses:
       ./.github/workflows/deploy.yml
     with:
       environment: dev
+    secrets:
+      aws-role-arn: ${{ secrets.AWSROLE_HARBOURBOOKS_GITHUBACTIONS }}
+      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+
+  call-deploy-qa:
+    if: github.event.name == 'push' && github.refs == 'refs/heads/qa'
+    uses:
+      ./.github/workflows/deploy.yml
+    with:
+      environment: qa
     secrets:
       aws-role-arn: ${{ secrets.AWSROLE_HARBOURBOOKS_GITHUBACTIONS }}
       EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
