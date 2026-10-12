@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 import mysql.connector
 import os
-import boto3
+# import boto3
 import json
 import logging
 from datetime import datetime, timezone
@@ -23,27 +23,34 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-def fetch_db_secret():
-    secret_arn = os.getenv("DB_SECRET_ARN")
-    region = os.getenv("AWS_REGION", "ap-southeast-2")
-    try:
-        client = boto3.client("secretsmanager", region_name=region)
-        response = client.get_secret_value(SecretId=secret_arn)
-        return json.loads(response["SecretString"])
-    except Exception as e:
-        logger.error(f"Failed to fetch DB secret from Secrets Manager: {e}")
-        return {}
+# def fetch_db_secret():
+#     secret_arn = os.getenv("DB_SECRET_ARN")
+#     region = os.getenv("AWS_REGION", "ap-southeast-2")
+#     try:
+#         client = boto3.client("secretsmanager", region_name=region)
+#         response = client.get_secret_value(SecretId=secret_arn)
+#         return json.loads(response["SecretString"])
+#     except Exception as e:
+#         logger.error(f"Failed to fetch DB secret from Secrets Manager: {e}")
+#         return {}
 
-_secret = fetch_db_secret()
+# _secret = fetch_db_secret()
+
+# db_config = {
+#     "host": _secret.get("host", os.getenv("DB_HOST", "placeholder")),
+#     "user": _secret.get("username", "orders_user"),
+#     "password": _secret.get("password", ""),
+#     "database": os.getenv("DB_NAME", "orders_db"),
+#     "port": _secret.get("port", 3306),
+# }
 
 db_config = {
-    "host": _secret.get("host", os.getenv("DB_HOST", "placeholder")),
-    "user": _secret.get("username", "orders_user"),
-    "password": _secret.get("password", ""),
+    "host": os.getenv("DB_HOST", "placeholder"),
+    "user": os.getenv("DB_USER", "orders_user"),
+    "password": os.getenv("DB_PASSWORD", ""),
     "database": os.getenv("DB_NAME", "orders_db"),
-    "port": _secret.get("port", 3306),
+    "port": int(os.getenv("DB_PORT", 3306)),
 }
-
 
 def get_connection():
     return mysql.connector.connect(**db_config)
