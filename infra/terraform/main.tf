@@ -62,7 +62,7 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_route_table_association" "public_b" {
   subnet_id      = aws_subnet.public_b.id
-  route_table_id = aws_route_table_association.public.id
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_subnet" "private_a" {
@@ -155,6 +155,12 @@ module "web_instances" {
   subnet_id                    = aws_subnet.public.id
   vpc_security_group_ids       = [module.web_sg.sg_id]
   associated_public_ip_address = true
+  user_data = <<-EOF
+    #!/bin/bash
+    dnf install -y nginx
+    systemctl enable --now nginx
+    echo "<h1>${var.name_prefix}-${each.key}</h1>" > /usr/share/nginx/html/index.html
+  EOF
   tags                         = var.tags
 }
 

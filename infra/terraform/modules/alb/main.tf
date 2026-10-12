@@ -11,7 +11,7 @@ resource "aws_lb_target_group" "web" {
   name                 = "${var.alb_name}-tg"
   port                 = 80
   protocol             = "HTTP"
-  target_type          = "ip"
+  target_type          = "instance"
   vpc_id               = var.vpc_id
   deregistration_delay = 10
   health_check {
